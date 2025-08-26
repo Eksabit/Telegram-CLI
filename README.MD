@@ -1,4 +1,4 @@
-# Telegram CLI (Telethon) — README
+# Telegram CLI
 
 Коротко: простой терминальный Telegram‑клиент на Python, использующий Telethon (MTProto). Поддерживает macOS, командный интерфейс (prompt), русский и английский языки, отправку/приём медиа.
 
