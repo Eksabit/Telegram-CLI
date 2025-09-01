@@ -3,6 +3,7 @@
 import os
 import asyncio
 from dotenv import load_dotenv
+from colorama import Fore, Back, Style, init, just_fix_windows_console
 from telethon import TelegramClient, events, types, errors
 from telethon.tl.types import InputPeerUser, InputPeerChannel
 from telethon.tl.functions.messages import GetDialogsRequest
@@ -99,7 +100,7 @@ async def handler(event):
 
 async def interactive_loop():
     global current_peer, lang
-    print("Telegram CLI (Telethon). Для помощи введите help")
+    print(Fore.YELLOW + "Telegram CLI (Telethon). Для помощи введите help" + Style.RESET_ALL)
     while True:
         try:
             cmd = input(PROMPTS[lang]["prompt"]).strip()
@@ -112,7 +113,7 @@ async def interactive_loop():
         c = parts[0].lower()
         arg = parts[1] if len(parts) > 1 else ""
         if c == "help":
-            print(PROMPTS[lang]["help"])
+            print(Fore.MAGENTA + PROMPTS[lang]["help"] + Style.RESET_ALL)
         elif c == "lang":
             lang = "en" if lang == "ru" else "ru"
             print("Language:", lang)
@@ -128,13 +129,13 @@ async def interactive_loop():
             try:
                 idx = int(arg) - 1
             except:
-                print("Неверный номер")
+                print(Fore.RED + "Неверный номер" + Style.RESET_ALL)
                 continue
             dialogs = []
             async for d in client.iter_dialogs():
                 dialogs.append(d)
             if idx < 0 or idx >= len(dialogs):
-                print("Индекс вне диапазона")
+                print(Fore.RED + "Индекс вне диапазона" + Style.RESET_ALL)
                 continue
             current_peer = dialogs[idx].entity
             print(PROMPTS[lang]["selected"], dialogs[idx].name)
@@ -157,7 +158,7 @@ async def interactive_loop():
                 print("send <text>")
                 continue
             await client.send_message(current_peer, arg)
-            print("OK")
+            print(Fore.GREEN + "OK" + Style.RESET_ALL)
         elif c == "sendfile":
             if not current_peer:
                 print(PROMPTS[lang]["no_peer"])
@@ -167,11 +168,11 @@ async def interactive_loop():
                 print("sendfile <path>")
                 continue
             if not os.path.exists(path):
-                print("Файл не найден")
+                print(Fore.RED + "Файл не найден" + Style.RESET_ALL)
                 continue
             # send file (auto-detect)
             await client.send_file(current_peer, path)
-            print("Отправлено")
+            print(Fore.GREEN + "Отправлено" + Style.RESET_ALL)
         elif c == "download":
             if not current_peer:
                 print(PROMPTS[lang]["no_peer"])
@@ -186,28 +187,35 @@ async def interactive_loop():
             try:
                 mid = int(sp[0])
             except:
-                print("Неверный id")
+                print(Fore.RED + "Неверный id" + Style.RESET_ALL)
                 continue
             path = sp[1]
             msgs = await client.get_messages(current_peer, ids=[mid])
             if not msgs:
-                print("Сообщение не найдено")
+                print(Fore.RED + "Сообщение не найдено" + Style.RESET_ALL)
                 continue
             m = msgs[0]
             if not m.media:
-                print("В сообщении нет медиа")
+                print(Fore.RED + "В сообщении нет медиа" + Style.RESET_ALL)
                 continue
             out = await save_media_to_file(m, path)
-            print("Сохранено в", out)
+            print(Fore.GREEN + "Сохранено в", out + Style.RESET_ALL)
         elif c == "exit" or c == "quit":
             break
         else:
-            print("Неизвестная команда. help для списка.")
+            print(Fore.RED + "Неизвестная команда. help для справки." + Style.RESET_ALL)
     await client.disconnect()
 
 async def main():
     await client.start()
-    print("Авторизация выполнена.")
+    print(Fore.GREEN + '''
+   ──╔╗───╔═╗───────────╔╗────
+    ╔╝║╔═╗║╬║╔══╗╔═╗╔═╗╔╝║
+    ║╬║║╬║╠╗║║║║║║╬║║╬║║╬║
+    ╚═╝╚═╝╚═╝╚╩╩╝╚═╝╚═╝╚═╝ ☭
+    Telegram CLI V1.0.0
+   ───────────────────────────''' + Style.RESET_ALL)
+    print(Fore.CYAN + "Авторизация выполнена." + Style.RESET_ALL)
     # запустить интерактивный loop параллельно с клиентом (обработчик событий уже зарегистрирован)
     await interactive_loop()
 
