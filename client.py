@@ -225,4 +225,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
 
-# Ветка main
+# Ветка main (Обнавление с домешнего компьютера)
